@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+
+<head>
+  <meta charset="utf-8">
+  <title>ECharts</title>
+</head>
+
+<body>
+  <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+  <div id="main" style="width:800px;height:600px"></div>
+  <textarea id="html"></textarea>
+  <button onclick="draw()"></button>
+  <!-- ECharts单文件引入 -->
+  <script src="./js/echarts-all.js"></script>
+  <script type="text/javascript">
+  var myChart = echarts.init(document.getElementById('main'));
+  function draw() {
+    console.log('draw');
+    option = {
+      title: {
+        text: 'DOM'
+      },
+      toolbox: {
+        show: true,
+        feature: {
+          mark: {
+            show: true
+          },
+          dataView: {
+            show: true,
+            readOnly: false
+          },
+          restore: {
+            show: true
+          },
+          saveAsImage: {
+            show: true
+          }
+        }
+      },
+      series: [{
+        name: '树图',
+        type: 'tree',
+        orient: 'horizontal', // vertical horizontal
+        rootLocation: {
+          x: 100,
+          y: 230
+        }, // 根节点位置  {x: 100, y: 'center'}
+        nodePadding: 8,
+        layerPadding: 200,
+        hoverable: false,
+        roam: true,
+        symbolSize: 6,
+        itemStyle: {
+          normal: {
+            color: '#4883b4',
+            label: {
+              show: true,
+              position: 'right',
+              formatter: "{b}",
+              textStyle: {
+                color: '#000',
+                fontSize: 5
+              }
+            },
+            lineStyle: {
+              color: '#ccc',
+              type: 'curve' // 'curve'|'broken'|'solid'|'dotted'|'dashed'
+
+            }
+          },
+          emphasis: {
+            color: '#4883b4',
+            label: {
+              show: false
+            },
+            borderWidth: 0
+          }
+        },
+
+        data: [parser(tokenizer(document.getElementById('html').value))]
+      }]
+    };
+    console.log(parser(tokenizer(document.getElementById('html').value)));
+    myChart.setOption(option);
+  }
+
+  function tokenizer(content) {
+    var result = [];
+    var symbol = ['{', '}', ':', ';', ',', '(', ')', '.', '#', '~', , '<', '>', '*', '+', '[', ']', '=', '|', '^'];
+    var isInString = false;
+    var tmpString = '';
+    for (var i = 0; i < content.length; i++) {
+
+      var t = content[i];
+      if (t == '\'' || t == '\"') {
+        if (isInString) {
+          tmpString += t;
+          isInString = false;
+          result.push(tmpString);
+          tmpString = '';
+        } else {
+          tmpString += t;
+          isInString = true;
+        }
+        continue;
+      }
+      if (isInString) {
+        //字符串状态
+        tmpString += t;
+      } else {
+        //非字符串状态
+        if (t == '\n' || t == ' ' || t == '    ') {
+          if (tmpString.length != 0) {
+            result.push(tmpString);
+            tmpString = '';
+          }
+          continue;
+        }
+        if (symbol.indexOf(t) != -1) {
+          if (tmpString.length != 0) {
+            result.push(tmpString);
+            tmpString = '';
+          }
+          result.push(t);
+          continue;
+        }
+        tmpString += t;
+      }
+
+    }
+    return result;
+  }
+
+  function parser(tokenArray) {
+    // var status; //0:标签内部  1:非标签内部
+    // var nowTagName = '';
+    // var nowNode;
+    var tagArray = [];
+    var nodeHeap = [];
+    var nodeTree = {
+      name: 'root',
+      children: []
+    };
+    nodeHeap.push(nodeTree);
+    tokenArray.forEach(function(item, index) {
+      if (item == '<') {
+        tagArray.push(tokenArray[index + 1]);
+      }
+    })
+    var selfEndTags = ['img', 'br', 'hr', 'col', 'area', 'link', 'meta', 'frame', 'input', 'param'];
+    tagArray.forEach(function(item, index) {
+      if (item[0] == '!' || selfEndTags.indexOf(item) != -1) {
+        //自封闭标签、注释
+        nodeHeap[nodeHeap.length - 1].children.push({
+          name: item,
+          children: []
+        });
+      } else {
+        if (item[0] != '/') {
+          //普通标签头
+          var newNode = {
+            name: item,
+            children: []
+          }
+          nodeHeap[nodeHeap.length - 1].children.push(newNode);
+          nodeHeap.push(newNode);
+        } else {
+          //普通标签尾
+          if (item.split('/')[1] == nodeHeap[nodeHeap.length - 1].name) {
+            nodeHeap.pop();
+          }
+        }
+
+      }
+    })
+    return nodeTree;
+  }
+  </script>
+</body>

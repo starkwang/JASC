@@ -22,7 +22,7 @@ function parser(tokenArray) {
             //自封闭标签、注释
             nodeHeap[nodeHeap.length-1].child.push({
                 name: item,
-                child: 0
+                child: []
             });
         } else {
             if (item[0] != '/') {

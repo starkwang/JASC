@@ -1,5 +1,8 @@
 fs = require('fs');
+promise = require('bluebird');
 tokenizer = require('./tokenizer');
-fs.readFile('test.scss', 'utf-8', function(err, content) {
-    tokenizer(content);
-})
+parser = require('./parser');
+promise.promisifyAll(fs);
+fs.readFileAsync('test.html', 'utf-8').then(function(data){
+    var tree = parser(tokenizer(data));
+});

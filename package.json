@@ -1,0 +1,20 @@
+{
+  "name": "jasc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "bluebird": "^2.10.2"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/starkwang/JASC.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/starkwang/JASC/issues"
+  },
+  "homepage": "https://github.com/starkwang/JASC#readme"
+}

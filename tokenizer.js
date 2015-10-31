@@ -1,7 +1,7 @@
 module.exports = tokenizer;
 function tokenizer(content) {
     var result = [];
-    var symbol = ['{', '}', ':', ';', ',', '(', ')', '.', '#', '~', '>', '*', '+', '[', ']', '=', '|', '^'];
+    var symbol = ['{', '}', ':', ';', ',', '(', ')', '.', '#', '~', ,'<','>', '*', '+', '[', ']', '=', '|', '^'];
     var isInString = false;
     var tmpString = '';
     for (var i = 0; i < content.length; i++) {
@@ -43,5 +43,5 @@ function tokenizer(content) {
         }
 
     }
-    console.log(result);
+    return result;
 }
